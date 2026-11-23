@@ -1,24 +1,22 @@
-#!/usr/bin/env python3
-"""Copy the entry image to the output directory.
+#!/usr/bin/python3
+"""Drop the meme PNG into the folder the grader expects.
 
-The grader runs this program twice; both runs must write the same bytes.
-The image itself is drawn by render.py and shipped in this repository as entry.png.
+The bytes are copied verbatim, so every run lands the same image
+in the output directory, no matter how often it is invoked.
 """
-import os
-import shutil
+from os import environ
+from pathlib import Path
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-SRC = os.path.join(HERE, "entry.png")
-OUT = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-
-
-def main():
-    os.makedirs(OUT, exist_ok=True)
-    dst = os.path.join(OUT, "entry.png")
-    shutil.copyfile(SRC, dst)
-    size = os.path.getsize(dst)
-    print("wrote " + dst + " (" + str(size) + " bytes)")
+ENTRY = Path(__file__).resolve().parent / "entry.png"
+TARGET = Path(environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
 
 
-if __name__ == "__main__":
-    main()
+def run():
+    TARGET.mkdir(parents=True, exist_ok=True)
+    result = TARGET / "entry.png"
+    result.write_bytes(ENTRY.read_bytes())
+    print(f"copied {result} ({result.stat().st_size} bytes)")
+
+
+if __name__ == '__main__':
+    run()
